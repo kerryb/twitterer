@@ -11,7 +11,14 @@ end
 module OSX
   class << NSObject
     def ib_outlets *args
-      $ib_outlets[self] ||= []
+      unless $ib_outlets[self]
+        outlets = []
+        classname = self
+        (class << outlets; self; end).send :define_method, :inspect do
+          "Outlets for #{classname}"
+        end
+        $ib_outlets[self] = outlets
+      end
       args.each do |arg|
         $ib_outlets[self] << arg
       end
